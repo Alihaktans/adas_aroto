@@ -8,7 +8,7 @@ Projeyi çalıştırmak için aşağıdaki adımları takip edin:
 
 ```bash
 git clone https://github.com/Alihaktans/adas_aroto.git
-cd proje-adi
+cd adas_aroto
 pip install -r requirements.txt
 ```
 ### 🚀 Kullanım
