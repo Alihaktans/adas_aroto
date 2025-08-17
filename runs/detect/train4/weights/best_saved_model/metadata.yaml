@@ -1,0 +1,36 @@
+description: Ultralytics best model trained on data.yaml
+author: Ultralytics
+date: '2025-08-17T11:28:23.935267'
+version: 8.3.179
+license: AGPL-3.0 License (https://ultralytics.com/license)
+docs: https://docs.ultralytics.com
+stride: 32
+task: detect
+batch: 1
+imgsz:
+- 640
+- 640
+names:
+  0: '20'
+  1: '30'
+  2: dur
+  3: durak
+  4: girisyok
+  5: ilerisag
+  6: ilerisol
+  7: kirmizi
+  8: park
+  9: parkyasak
+  10: sag
+  11: sagadonulmez
+  12: sari
+  13: sol
+  14: soladonulmez
+  15: yesil
+args:
+  batch: 1
+  fraction: 1.0
+  half: false
+  int8: false
+  nms: false
+channels: 3

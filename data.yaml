@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 16
+names: ['20', '30', 'dur', 'durak', 'girisyok', 'ilerisag', 'ilerisol', 'kirmizi', 'park', 'parkyasak', 'sag', 'sagadonulmez', 'sari', 'sol', 'soladonulmez', 'yesil']
+
+roboflow:
+  workspace: turkeyroadsigns
+  project: turkey-road-sign
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/turkeyroadsigns/turkey-road-sign/dataset/1
