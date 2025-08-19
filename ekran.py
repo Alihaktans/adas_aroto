@@ -1,6 +1,7 @@
 import sys
 import cv2
 import time
+import RPi.GPIO as GPIO
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QVBoxLayout,
     QHBoxLayout, QFrame
@@ -235,9 +236,10 @@ class MainDisplay(QWidget):
         self.blindspot_right_status.setStyleSheet("color: white; font-size: 14px; padding-bottom: 5px;")
         blindspot_right_layout_inner.addWidget(self.blindspot_right_status)
         self.blindspot_layout.addWidget(self.blindspot_right_frame)
-        
         self.left_panel.addLayout(self.blindspot_layout)
-        self.left_panel.setStretchFactor(self.blindspot_layout, 1) # Allows it to take available vertical space
+
+        self.left_panel_widget = QWidget()
+        self.left_panel_widget.setLayout(left_panel_layout)
 
         # --- Middle Panel: Camera View ---
         self.camera_view_frame = QFrame()
@@ -292,14 +294,15 @@ class MainDisplay(QWidget):
 
         self.map_label = MapWidget("harita.png")
         self.map_view_layout.addWidget(self.map_label)
-        
         self.right_panel.addWidget(self.map_view_frame)
-        self.right_panel.setStretchFactor(self.map_view_frame, 1) # Allows map to expand vertically
+
+        self.right_panel_widget = QWidget()
+        self.right_panel_widget.setLayout(right_panel_layout)
 
         # --- Main Layout Assembly ---
-        main_layout.addLayout(self.left_panel, stretch=1) # Left panel takes 1 unit of horizontal space
+        main_layout.addLayout(self.left_panel_widget, stretch=1) # Left panel takes 1 unit of horizontal space
         main_layout.addWidget(self.camera_view_frame, stretch=2) # Camera view takes 2 units (more space)
-        main_layout.addLayout(self.right_panel, stretch=1) # Right panel takes 1 unit of horizontal space
+        main_layout.addLayout(self.right_panel_widget, stretch=1) # Right panel takes 1 unit of horizontal space
 
         # Initialize and start the camera thread
         self.camera_thread = CameraThread(CAMERA_INDEX, DESIRED_WIDTH, DESIRED_HEIGHT, DESIRED_FPS)
@@ -308,6 +311,10 @@ class MainDisplay(QWidget):
         # Connect the thread's signal to the slot that updates the FPS display
         self.camera_thread.update_fps_signal.connect(self.update_fps_display)
         self.camera_thread.start() # Start the camera capture thread
+
+        #GPIO thread'i
+        self.gpio_thread = GPIOThread(pin=REVERSE_GEAR_PIN)
+        self.gpio_thread.reverse_gear_signal.connect(self.handle_reverse_gear)
 
     @pyqtSlot(QPixmap)
     def update_camera_feed(self, pixmap):
@@ -324,6 +331,12 @@ class MainDisplay(QWidget):
         """
         self.fps_label.setText(fps_text)
 
+    #GPIO SİNYALLER FALAN FİŞMAN
+    @pyqtSlot(bool)
+    def handle_reverse_gear(self, is_reverse_active):
+        self.left_panel_widget.setVisible(not is_reverse_active)
+        self.right_panel_widget.setVisible(not is_reverse_active)
+
     def closeEvent(self, event):
         """
         Overrides the close event to ensure the camera thread is stopped gracefully
@@ -336,6 +349,10 @@ class MainDisplay(QWidget):
 if __name__ == "__main__":
     # The application entry point
     app = QApplication(sys.argv)
-    window = MainDisplay()
-    window.show()
-    sys.exit(app.exec_()) # Start the PyQt5 event loop
+    try:
+        window = MainDisplay()
+        window.show()
+        sys.exit(app.exec_()) # Start the PyQt5 event loop
+    finally:
+        GPIO.cleanup()
+        print("GPIO temizlendi.")
